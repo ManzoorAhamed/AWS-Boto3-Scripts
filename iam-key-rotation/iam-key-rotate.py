@@ -4,7 +4,7 @@
 import boto3
 from datetime import datetime, timezone
 
-clises = boto3.Session(profile_name='ioe-sandbox')
+clises = boto3.Session(profile_name='profile_name')
 client = clises.client('iam')
 paginator = client.get_paginator('list_users')
 
@@ -17,10 +17,12 @@ for response in paginator.paginate():
 
         list_key = client.list_access_keys(UserName=username)
         for access_key in list_key['AccessKeyMetadata']:
-            access_key_id = access_key['AccessKeyId']
+            accesskey_id = access_key['AccessKeyId']
             key_creation_date = access_key['CreateDate']
             age = (current_date - key_creation_date).days
             if age > max_age:
-                print('Deactivate the key')
+                print('Deactivating the key for the following user '+ username)
+                ## Deactivate the key if the age is more than 90 days
+                client.update_access_key(UserName=username, AccessKeyId=accesskey_id, Status='Inactive')
 
 
